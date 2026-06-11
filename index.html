@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ventas - ASM Pizzas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* VARIABLES DE DISEÑO */
+        :root {
+            --rojo: #C62828;
+            --rojo-claro: #E53935;
+            --rojo-suave: #FFEBEE;
+            --blanco: #FFFFFF;
+            --gris-claro: #F5F5F5;
+            --gris-medio: #757575;
+            --gris-oscuro: #212121;
+            --dorado: #FBC02D;
+            --dorado-claro: #FFFDE7;
+            --radio: 12px;
+            --sombra: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #FAFAFA;
+            color: var(--gris-oscuro);
+            padding-bottom: 40px;
+        }
+
+        /* HERO BANNER */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            background: var(--rojo);
+        }
+        .hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 30%;
+            display: block;
+            opacity: 0.85;
+        }
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(139,0,0,0.3) 0%, rgba(26,26,26,0.75) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 18px 20px;
+        }
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--blanco);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+        .hero-subtitle {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        /* NAVEGACION */
+        nav {
+            display: flex;
+            gap: 6px;
+            padding: 12px 16px;
+            background: var(--blanco);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        nav::-webkit-scrollbar { display: none; }
+        .nav-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 20px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--gris-claro);
+            color: var(--gris-medio);
+        }
+        .nav-btn.active {
+            background: var(--rojo);
+            color: var(--blanco);
+        }
+
+        /* PAGINAS */
+        .page { display: none; padding: 16px; max-width: 600px; margin: 0 auto; }
+        .page.active { display: block; }
+
+        /* CARDS */
+        .card {
+            background: var(--blanco);
+            border-radius: var(--radio);
+            padding: 18px;
+            margin-bottom: 14px;
+            box-shadow: var(--sombra);
+        }
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--rojo);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 18px;
+            background: var(--rojo);
+            border-radius: 2px;
+        }
+
+        /* RESUMEN INICIO */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+        .stat-box {
+            background: var(--gris-claro);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-num {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--rojo);
+        }
+        .stat-label {
+            font-size: 11px;
+            color: var(--gris-medio);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
+        }
+
+        /* LISTA VENDEDORES */
+        .vendedor-item {
+            background: var(--blanco);
+            border-radius: var(--radio);
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            box-shadow: var(--sombra);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--rojo);
+            transition: transform 0.15s;
+        }
+        .vendedor-item:hover { transform: scale(0.99); }
+        .vendedor-nombre {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--gris-oscuro);
+        }
+        .vendedor-sub {
+            font-size: 12px;
+            color: var(--gris-medio);
+            margin-top: 3px;
+        }
+        .vendedor-total {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--rojo);
+        }
+
+        /* FORMULARIOS */
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gris-medio);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            margin-top: 12px;
+        }
+        input, select {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid #E0E0E0;
+            border-radius: 10px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            color: var(--gris-oscuro);
+            background: var(--blanco);
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        input:focus, select:focus {
+            border-color: var(--rojo);
+        }
+
+        /* LINEA DE PIZZA */
+        .pizza-linea {
+            background: var(--rojo-suave);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .pizza-linea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .pizza-linea-num {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--rojo);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-eliminar {
+            background: none;
+            border: none;
+            color: var(--rojo-claro);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .pizza-grid {
+            display: grid;
+            grid-template-columns: 1fr 80px 90px;
+            gap: 8px;
+            align-items: end;
+        }
+        .pizza-grid label { margin-top: 0; margin-bottom: 4px; font-size: 11px; }
+
+        /* BOTONES */
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+            text-align: center;
+            display: block;
+        }
+        .btn-primario {
+            background: var(--rojo);
+            color: var(--blanco);
+        }
+        .btn-primario:hover { background: var(--rojo-claro); }
+        .btn-secundario {
+            background: var(--gris-claro);
+            color: var(--gris-oscuro);
+        }
+        .btn-dorado {
+            background: var(--dorado);
+            color: var(--blanco);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--rojo);
+            color: var(--rojo);
+        }
+        .btn-sm {
+            padding: 9px 14px;
+            font-size: 12px;
+            width: auto;
+            margin-top: 0;
+            border-radius: 8px;
+        }
+
+        /* BOTONES ROW */
+        .btn-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .btn-row .btn { flex: 1; min-width: 120px; }
+
+        /* TIPOS TAGS */
+        .tipos-lista {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .tipo-tag {
+            background: var(--rojo-suave);
+            color: var(--rojo);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tipo-tag-del {
+            background: none;
+            border: none;
+            color: var(--rojo);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* DETALLE VENDEDOR MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        .modal-overlay.active { display: flex; align-items: flex-start; justify-content: center; }
+        .modal {
+            background: var(--blanco);
+            border-radius: 20px;
+            width: calc(100% - 32px);
+            max-width: 500px;
+            overflow: hidden;
+            margin: auto;
+        }
+        .modal-header {
+            background: var(--rojo);
+            padding: 20px 20px 16px;
+            position: relative;
+        }
+        .modal-nombre {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--blanco);
+        }
+        .modal-sub {
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 4px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: var(--blanco);
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-body { padding: 18px; }
+        
+        .detalle-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .detalle-tabla th {
+            background: var(--gris-claro);
+            padding: 8px 10px;
+            text-align: left;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gris-medio);
+        }
+        .detalle-tabla td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #F0F0F0;
+        }
+        .detalle-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 17px;
+            border-top: 2px solid var(--rojo);
+            margin-top: 6px;
+            color: var(--rojo);
+        }
+
+        /* ACCIONES EXCEL/PDF */
+        .acciones-section {
+            background: var(--dorado-claro);
+            border-radius: var(--radio);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .acciones-titulo {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gris-medio);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gris-oscuro);
+            color: var(--blanco);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+        .toast.show { opacity: 1; }
+
+        /* EMPTY STATE */
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gris-medio);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-text { font-size: 14px; }
+
+        /* INSTALL BANNER */
+        .install-banner {
+            background: linear-gradient(135deg, var(--rojo) 0%, var(--rojo-claro) 100%);
+            color: var(--blanco);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        .install-banner.hidden { display: none; }
+        .install-icon { font-size: 28px; }
+        .install-text { flex: 1; }
+        .install-text-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px; }
+        .install-text-sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+        .install-arrow { font-size: 20px; opacity: 0.8; }
+
+        /* COSTOS INFO */
+        .costos-info {
+            background: var(--gris-claro);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--gris-medio);
+            margin-top: 8px;
+        }
+        .costos-info strong { color: var(--rojo); }
+
+        /* SECCIÓN ELIMINAR */
+        .danger-zone {
+            border: 1.5px dashed #FFCDD2;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="install-banner" id="installBanner">
+        <div class="install-icon">🍕</div>
+        <div class="install-text">
+            <div class="install-text-title">Instalar ASM Pizzas</div>
+            <div class="install-text-sub">Accede rápido desde tu pantalla de inicio</div>
+        </div>
+        <div class="install-arrow">➔</div>
+    </div>
+
+    <div class="hero">
+        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1000&q=80" alt="Pizza Banner">
+        <div class="hero-overlay">
+            <div class="hero-title">ASM Pizzas</div>
+            <div class="hero-subtitle">Panel de Control y Registro de Ventas</div>
+        </div>
+    </div>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchPage('inicio')">Inicio</button>
+        <button class="nav-btn" onclick="switchPage('nueva-venta')">Nueva Venta</button>
+        <button class="nav-btn" onclick="switchPage('vendedores')">Vendedores</button>
+    </nav>
+
+    <div id="inicio" class="page active">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-num" id="totalVentas">$124,500</div>
+                <div class="stat-label">Total Recaudado</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-num" id="cantPizzas">84</div>
+                <div class="stat-label">Pizzas Vendidas</div>
+            </div>
+        </div>
+
+        <div class="acciones-section">
+            <div class="acciones-titulo">Exportar Reportes</div>
+            <div class="btn-row">
+                <button class="btn btn-dorado btn-sm" onclick="showToast('Exportando a Excel...')">Excel</button>
+                <button class="btn btn-secundario btn-sm" onclick="showToast('Generando PDF...')">PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="nueva-venta" class="page">
+        <div class="card">
+            <div class="card-title">Datos de la Venta</div>
+            
+            <label for="vendedor">Seleccionar Vendedor</label>
+            <select id="vendedor">
+                <option value="1">Carlos Gómez</option>
+                <option value="2">Ana Rodríguez</option>
+                <option value="3">Luis Fernández</option>
+            </select>
+
+            <label>Detalle del Pedido</label>
+            <div class="pizza-linea">
+                <div class="pizza-linea-header">
+                    <div class="pizza-linea-num">Pizza #1</div>
+                    <button class="btn-eliminar">&times;</button>
+                </div>
+                <div class="pizza-grid">
+                    <div>
+                        <label>Variedad</label>
+                        <select>
+                            <option>Muzzarella</option>
+                            <option>Pepperoni</option>
+                            <option>Fugazzeta</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Cant.</label>
+                        <input type="number" value="1" min="1">
+                    </div>
+                    <div>
+                        <label>Precio</label>
+                        <input type="number" value="1500">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-outline btn-sm" style="margin-bottom: 15px;" onclick="showToast('Línea agregada')">+ Agregar Pizza</button>
+
+            <div class="costos-info">
+                Monto Total a registrar: <strong id="montoTotalVenta">$1,500</strong>
+            </div>
+
+            <button class="btn btn-primario" onclick="showToast('✅ Venta guardada correctamente')">✅ Guardar venta</button>
+        </div>
+    </div>
+
+    <div id="vendedores" class="page">
+        <div class="card">
+            <div class="card-title">Ranking de Ventas</div>
+            
+            <div class="vendedor-item" onclick="openModal('Carlos Gómez', '$54,000', 36)">
+                <div>
+                    <div class="vendedor-nombre">Carlos Gómez</div>
+                    <div class="vendedor-sub">36 Pizzas despachadas</div>
+                </div>
+                <div class="vendedor-total">$54,000</div>
+            </div>
+
+            <div class="vendedor-item" onclick="openModal('Ana Rodríguez', '$42,500', 28)">
+                <div>
+                    <div class="vendedor-nombre">Ana Rodríguez</div>
+                    <div class="vendedor-sub">28 Pizzas despachadas</div>
+                </div>
+                <div class="vendedor-total">$42,500</div>
+            </div>
+
+            <div class="vendedor-item" onclick="openModal('Luis Fernández', '$28,000', 20)">
+                <div>
+                    <div class="vendedor-nombre">Luis Fernández</div>
+                    <div class="vendedor-sub">20 Pizzas despachadas</div>
+                </div>
+                <div class="vendedor-total">$28,000</div>
+            </div>
+        </div>
+
+        <div class="danger-zone">
+            <label style="color: var(--rojo); margin-top: 0;">Zona de peligro</label>
+            <button class="btn btn-secundario btn-sm" style="color: var(--rojo);" onclick="showToast('Datos reiniciados')">Reiniciar historial semanal</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-nombre" id="modalVendedorNombre">Nombre Vendedor</div>
+                <div class="modal-sub" id="modalVendedorSub">0 Pizzas vendidas esta semana</div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="detalle-tabla">
+                    <thead>
+                        <tr>
+                            <th>Variedad</th>
+                            <th>Cant.</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Muzzarella</td>
+                            <td>12</td>
+                            <td>$18,000</td>
+                        </tr>
+                        <tr>
+                            <td>Pepperoni</td>
+                            <td>8</td>
+                            <td>$14,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="detalle-total">
+                    <span>Total Acumulado:</span>
+                    <span id="modalVendedorTotal">$32,000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Mensaje</div>
+
+    <script>
+        // Cambiar entre Pestañas/Páginas
+        function switchPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Mostrar Toast emergente
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Control del Modal
+        function openModal(nombre, total, pizzas) {
+            document.getElementById('modalVendedorNombre').innerText = nombre;
+            document.getElementById('modalVendedorSub').innerText = `${pizzas} pizzas vendidas esta semana`;
+            document.getElementById('modalVendedorTotal').innerText = total;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // Ocultar banner de instalación al hacer clic
+        document.getElementById('installBanner').addEventListener('click', function() {
+            this.classList.add('hidden');
+            showToast('¡Iniciando simulación de instalación de App!');
+        });
+    </script>
+</body>
+</html>
